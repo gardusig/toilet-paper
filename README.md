@@ -26,7 +26,7 @@ Toilet Paper offers a simple API for creating and managing documents. Here's how
 
 ```javascript
 // Create a new document
-ToiletPaper.Util.createDoc("MyDocument", "MyFolder/");
+ToiletPaper.Tissuer.createRoll("MyDocument", "MyFolder/");
 ```
 
 ## Contributing
