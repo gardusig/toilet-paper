@@ -1,5 +1,5 @@
-namespace Tissuer {
-  export function createRoll(docName: string, folderPath: string): void {
+export namespace Tissuer {
+  export function createDocument(folderPath: string, docName: string): void {
     const targetFolder = getOrCreateFolder(folderPath);
     if (fileAlreadyExists(docName, targetFolder)) {
       return;
