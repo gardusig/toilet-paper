@@ -11,7 +11,7 @@ export namespace Tissuer {
       `Document created:` +
         `\n\tURL: ${doc.getUrl()}` +
         `\n\tName: ${doc.getName()}` +
-        `\n\tLocation: ${targetFolder.getName()}`
+        `\n\tLocation: ${targetFolder.getName()}`,
     );
   }
 
@@ -27,7 +27,7 @@ export namespace Tissuer {
 
   function getNextFolder(
     folder: GoogleAppsScript.Drive.Folder,
-    part: string
+    part: string,
   ): GoogleAppsScript.Drive.Folder {
     const folderIterator = folder.getFoldersByName(part);
     if (folderIterator.hasNext()) {
@@ -42,7 +42,7 @@ export namespace Tissuer {
 
   function fileAlreadyExists(
     docName: string,
-    targetFolder: GoogleAppsScript.Drive.Folder
+    targetFolder: GoogleAppsScript.Drive.Folder,
   ): boolean {
     const files = targetFolder.getFilesByName(docName);
     if (!files.hasNext()) {
