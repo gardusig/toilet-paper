@@ -25,8 +25,7 @@ Toilet Paper is a Google Apps Script library. To use it, follow these steps:
 Toilet Paper offers a simple API for creating and managing documents. Here's how you can use it:
 
 ```javascript
-// Create a new document
-ToiletPaper.Tissuer.createGoogleDocument("MyDocument", "MyFolder/");
+ToiletPaper.Tissuer.createDocument("path/to/folder/", "documentName");
 ```
 
 ## Contributing
