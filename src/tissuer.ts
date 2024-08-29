@@ -1,55 +1,97 @@
 export namespace Tissuer {
   export function createDocument(folderPath: string, docName: string): void {
-    const targetFolder = getOrCreateFolder(folderPath);
-    if (fileAlreadyExists(docName, targetFolder)) {
+    const targetFolder = getOrCreateFolderByPath(folderPath);
+    if (doesFileExists(docName, targetFolder)) {
+      Logger.log(
+        `Document "${docName}" already exists in folder: "${targetFolder.getName()}"`,
+      );
       return;
     }
     const doc = DocumentApp.create(docName);
     const file = DriveApp.getFileById(doc.getId());
     file.moveTo(targetFolder);
     Logger.log(
-      `Document created:` +
+      `Document created successfully:` +
         `\n\tURL: ${doc.getUrl()}` +
         `\n\tName: ${doc.getName()}` +
         `\n\tLocation: ${targetFolder.getName()}`,
     );
   }
 
-  function getOrCreateFolder(path: string): GoogleAppsScript.Drive.Folder {
-    const parts = path.split("/");
-    let folder = DriveApp.getRootFolder();
-    for (const part of parts) {
-      folder = getNextFolder(folder, part);
+  export function appendToFile(
+    folderPath: string,
+    fileName: string,
+    content: string,
+    heading?: GoogleAppsScript.Document.ParagraphHeading,
+  ): void {
+    const file = findFile(folderPath, fileName);
+    const doc = DocumentApp.openById(file.getId());
+    const body = doc.getBody();
+
+    if (heading) {
+      body.appendParagraph(content).setHeading(heading);
+    } else {
+      body.appendParagraph(content);
     }
-    Logger.log(`Folder ${folder.getName()} retrieved or created successfully`);
-    return folder;
+
+    doc.saveAndClose();
+    Logger.log(
+      `Content appended to document "${fileName}" in folder "${folderPath}"`,
+    );
   }
 
-  function getNextFolder(
-    folder: GoogleAppsScript.Drive.Folder,
-    part: string,
+  function getOrCreateFolderByPath(
+    path: string,
   ): GoogleAppsScript.Drive.Folder {
-    const folderIterator = folder.getFoldersByName(part);
-    if (folderIterator.hasNext()) {
-      const nextFolder = folderIterator.next();
-      Logger.log(`Folder ${nextFolder.getName()} found`);
-      return nextFolder;
-    }
-    const createdFolder = folder.createFolder(part);
-    Logger.log(`Folder ${createdFolder.getName()} created`);
-    return createdFolder;
+    const parts = path.split("/");
+    let currentFolder = DriveApp.getRootFolder();
+    parts.forEach((part) => {
+      currentFolder = findOrCreateFolder(currentFolder, part);
+    });
+    Logger.log(`Folder path "${path}" retrieved or created successfully`);
+    return currentFolder;
   }
 
-  function fileAlreadyExists(
-    docName: string,
+  function findOrCreateFolder(
+    parentFolder: GoogleAppsScript.Drive.Folder,
+    folderName: string,
+  ): GoogleAppsScript.Drive.Folder {
+    const folderIterator = parentFolder.getFoldersByName(folderName);
+    if (folderIterator.hasNext()) {
+      const existingFolder = folderIterator.next();
+      Logger.log(`Folder "${existingFolder.getName()}" found`);
+      return existingFolder;
+    }
+    const newFolder = parentFolder.createFolder(folderName);
+    Logger.log(`Folder "${newFolder.getName()}" created`);
+    return newFolder;
+  }
+
+  function doesFileExists(
+    fileName: string,
     targetFolder: GoogleAppsScript.Drive.Folder,
   ): boolean {
-    const files = targetFolder.getFilesByName(docName);
-    if (!files.hasNext()) {
-      return false;
+    const files = targetFolder.getFilesByName(fileName);
+    if (files.hasNext()) {
+      const existingFile = files.next();
+      Logger.log(`Document already exists: ${existingFile.getUrl()}`);
+      return true;
     }
-    const existingFile = files.next();
-    Logger.log(`Document already exists: ${existingFile.getUrl()}`);
-    return true;
+    return false;
+  }
+
+  function findFile(
+    folderPath: string,
+    fileName: string,
+  ): GoogleAppsScript.Drive.File {
+    const targetFolder = getOrCreateFolderByPath(folderPath);
+    const files = targetFolder.getFilesByName(fileName);
+    if (!files.hasNext()) {
+      throw new Error(
+        `Document "${fileName}" not found in folder: "${folderPath}"`,
+      );
+    }
+    Logger.log(`Document "${fileName}" found in folder "${folderPath}"`);
+    return files.next();
   }
 }
