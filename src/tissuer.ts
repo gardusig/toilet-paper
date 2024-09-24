@@ -27,13 +27,16 @@ export namespace Tissuer {
     const file = findFile(folderPath, fileName);
     const doc = DocumentApp.openById(file.getId());
     const body = doc.getBody();
-
+    let paragraph;
     if (heading) {
-      body.appendParagraph(content).setHeading(heading);
+      paragraph = body.appendParagraph(content).setHeading(heading);
     } else {
-      body.appendParagraph(content);
+      paragraph = body.appendParagraph(content);
     }
-
+    paragraph.setAttributes({
+      [DocumentApp.Attribute.FONT_FAMILY]: "Roboto",
+    });
+    paragraph.setAlignment(DocumentApp.HorizontalAlignment.JUSTIFY);
     doc.saveAndClose();
     Logger.log(
       `Content appended to document "${fileName}" in folder "${folderPath}"`,
