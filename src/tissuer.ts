@@ -18,28 +18,39 @@ export namespace Tissuer {
     );
   }
 
-  export function appendToFile(
+  export function appendParagraphToFile(
     folderPath: string,
     fileName: string,
     content: string,
     heading?: GoogleAppsScript.Document.ParagraphHeading,
-    fontFamily: string = "Roboto",
   ): void {
     const file = findFile(folderPath, fileName);
     const doc = DocumentApp.openById(file.getId());
     const body = doc.getBody();
-    const paragraph = body.appendParagraph(content);
+    const paragraph =
+      body.getNumChildren() === 0
+        ? body.insertParagraph(0, content)
+        : body.appendParagraph(content);
+    formatParagraph(paragraph);
     if (heading !== undefined) {
       paragraph.setHeading(heading);
+      const emptyParagraph = body.appendParagraph("");
+      formatParagraph(emptyParagraph);
     }
-    paragraph.setAttributes({
-      [DocumentApp.Attribute.FONT_FAMILY]: fontFamily,
-    });
-    paragraph.setAlignment(DocumentApp.HorizontalAlignment.JUSTIFY);
     doc.saveAndClose();
     Logger.log(
       `Content appended to document "${fileName}" in folder "${folderPath}"`,
     );
+  }
+
+  function formatParagraph(
+    paragraph: GoogleAppsScript.Document.Paragraph,
+    fontFamily: string = "Roboto",
+  ): void {
+    paragraph.setAttributes({
+      [DocumentApp.Attribute.FONT_FAMILY]: fontFamily,
+    });
+    paragraph.setAlignment(DocumentApp.HorizontalAlignment.JUSTIFY);
   }
 
   function getOrCreateFolderByPath(
