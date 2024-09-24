@@ -23,18 +23,17 @@ export namespace Tissuer {
     fileName: string,
     content: string,
     heading?: GoogleAppsScript.Document.ParagraphHeading,
+    fontFamily: string = "Roboto",
   ): void {
     const file = findFile(folderPath, fileName);
     const doc = DocumentApp.openById(file.getId());
     const body = doc.getBody();
-    let paragraph;
-    if (heading) {
-      paragraph = body.appendParagraph(content).setHeading(heading);
-    } else {
-      paragraph = body.appendParagraph(content);
+    const paragraph = body.appendParagraph(content);
+    if (heading !== undefined) {
+      paragraph.setHeading(heading);
     }
     paragraph.setAttributes({
-      [DocumentApp.Attribute.FONT_FAMILY]: "Roboto",
+      [DocumentApp.Attribute.FONT_FAMILY]: fontFamily,
     });
     paragraph.setAlignment(DocumentApp.HorizontalAlignment.JUSTIFY);
     doc.saveAndClose();
