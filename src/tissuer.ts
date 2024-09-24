@@ -23,17 +23,19 @@ export namespace Tissuer {
     fileName: string,
     content: string,
     heading?: GoogleAppsScript.Document.ParagraphHeading,
+    fontFamily: string = "Roboto",
   ): void {
     const file = findFile(folderPath, fileName);
     const doc = DocumentApp.openById(file.getId());
     const body = doc.getBody();
-
-    if (heading) {
-      body.appendParagraph(content).setHeading(heading);
-    } else {
-      body.appendParagraph(content);
+    const paragraph = body.appendParagraph(content);
+    if (heading !== undefined) {
+      paragraph.setHeading(heading);
     }
-
+    paragraph.setAttributes({
+      [DocumentApp.Attribute.FONT_FAMILY]: fontFamily,
+    });
+    paragraph.setAlignment(DocumentApp.HorizontalAlignment.JUSTIFY);
     doc.saveAndClose();
     Logger.log(
       `Content appended to document "${fileName}" in folder "${folderPath}"`,
